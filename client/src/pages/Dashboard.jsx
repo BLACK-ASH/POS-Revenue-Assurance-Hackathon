@@ -1,116 +1,149 @@
-// src/pages/Dashboard.jsx
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Line, Bar } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const Dashboard = () => {
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-    const toggleSidebar = () => {
-        setIsSidebarOpen(!isSidebarOpen);
-    };
+  // Toggle sidebar
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
-    return (
-        <div className="flex min-h-screen">
-            {/* Sidebar */}
-            <div className={`w-64 bg-base-200 p-4 fixed sm:static transition-transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} sm:translate-x-0 h-full`}>
-                <h2 className="text-2xl font-semibold text-center text-primary mb-6">Dashboard</h2>
-                <ul className="menu p-2 space-y-4">
-                    <li>
-                        <Link to="/dashboard" className="menu-item text-primary hover:text-secondary">Dashboard</Link>
-                    </li>
-                    <li>
-                        <Link to="/analytics" className="menu-item text-primary hover:text-secondary">Analytics</Link>
-                    </li>
-                    <li>
-                        <Link to="/retailers" className="menu-item text-primary hover:text-secondary">Retailers</Link>
-                    </li>
-                    <li>
-                        <Link to="/settings" className="menu-item text-primary hover:text-secondary">Settings</Link>
-                    </li>
-                    <li>
-                        <Link to="/login" className="menu-item text-primary hover:text-secondary">Logout</Link>
-                    </li>
-                </ul>
+  // Example data for charts
+  const lineData = {
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    datasets: [
+      {
+        label: 'Monthly Revenue (₹)',
+        data: [5000, 10000, 7500, 12500, 15000, 20000],
+        borderColor: '#4F46E5',
+        backgroundColor: 'rgba(79, 70, 229, 0.2)',
+        fill: true,
+        tension: 0.4,
+      },
+    ],
+  };
+
+  const barData = {
+    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    datasets: [
+      {
+        label: 'Daily Active Users',
+        data: [100, 200, 150, 180, 250, 300, 400],
+        backgroundColor: '#10B981',
+        borderRadius: 10,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: { position: 'top' },
+      title: { display: true, text: 'Dashboard Insights' },
+    },
+  };
+
+  return (
+    <div className="flex h-screen bg-gray-100">
+     
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col">
+        {/* Header */}
+        <header className="flex items-center justify-between bg-white shadow px-6 py-4">
+          <div className="flex items-center space-x-4">
+            <button
+              className="sm:hidden text-gray-500 hover:text-indigo-600"
+              onClick={toggleSidebar}
+            >
+              <i className="fas fa-bars text-xl"></i>
+            </button>
+            <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
+          </div>
+          <div className="flex items-center space-x-6">
+            <i className="fas fa-search text-gray-500 hover:text-indigo-600"></i>
+            <i className="fas fa-bell text-gray-500 hover:text-indigo-600"></i>
+            <img
+              src="https://via.placeholder.com/40"
+              alt="User"
+              className="w-10 h-10 rounded-full"
+            />
+          </div>
+        </header>
+
+        {/* Main Dashboard Content */}
+        <main className="flex-1 p-6 space-y-6">
+          {/* Overview Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition">
+              <h3 className="text-xl text-gray-700">Total Revenue</h3>
+              <p className="text-3xl font-bold text-indigo-600 mt-4">₹5,00,000</p>
+            </div>
+            <div className="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition">
+              <h3 className="text-xl text-gray-700">Active Users</h3>
+              <p className="text-3xl font-bold text-green-500 mt-4">12,500</p>
+            </div>
+            <div className="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition">
+              <h3 className="text-xl text-gray-700">New Signups</h3>
+              <p className="text-3xl font-bold text-blue-500 mt-4">500</p>
+            </div>
+          </div>
+
+          {/* Charts Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Revenue Chart */}
+            <div className="bg-white shadow-lg rounded-lg p-6">
+              <h4 className="text-lg font-semibold text-gray-700 mb-4">Revenue Trend</h4>
+              <Line data={lineData} options={chartOptions} />
             </div>
 
-            {/* Main Content */}
-            <div className="flex-1 p-6 sm:ml-64">
-                {/* Mobile Navbar */}
-                <div className="sm:hidden flex justify-between items-center mb-6">
-                    <button className="btn btn-primary" onClick={toggleSidebar}>
-                        Menu
-                    </button>
-                    <h2 className="text-3xl font-semibold text-primary">Dashboard</h2>
-                </div>
-
-                {/* Header for larger screens */}
-                <div className="hidden sm:flex items-center justify-between mb-6">
-                    <h2 className="text-3xl font-semibold text-primary">Dashboard Overview</h2>
-                    <div className="flex items-center gap-3">
-                        <button className="btn btn-primary">New Report</button>
-                    </div>
-                </div>
-
-                {/* Stats Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {/* Total Revenue Card */}
-                    <div className="card bg-primary text-white shadow-xl">
-                        <div className="card-body">
-                            <h3 className="text-xl font-semibold">Total Revenue</h3>
-                            <p className="text-3xl font-bold">$250,000</p>
-                            <p className="text-sm mt-2">Month-to-Date</p>
-                        </div>
-                    </div>
-
-                    {/* New Users Card */}
-                    <div className="card bg-accent text-white shadow-xl">
-                        <div className="card-body">
-                            <h3 className="text-xl font-semibold">New Users</h3>
-                            <p className="text-3xl font-bold">1,200</p>
-                            <p className="text-sm mt-2">This Month</p>
-                        </div>
-                    </div>
-
-                    {/* Active Sessions Card */}
-                    <div className="card bg-secondary text-white shadow-xl">
-                        <div className="card-body">
-                            <h3 className="text-xl font-semibold">Active Sessions</h3>
-                            <p className="text-3xl font-bold">850</p>
-                            <p className="text-sm mt-2">Currently Active</p>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Recent Activity Section */}
-                <div className="mt-12">
-                    <h3 className="text-2xl font-semibold text-primary mb-4">Recent Activity</h3>
-                    <ul className="space-y-4">
-                        <li className="flex items-center justify-between">
-                            <div className="flex gap-2">
-                                <span className="text-lg text-primary">User #1012 completed the registration process.</span>
-                                <span className="badge badge-success">Completed</span>
-                            </div>
-                            <span className="text-sm text-gray-500">2 hours ago</span>
-                        </li>
-                        <li className="flex items-center justify-between">
-                            <div className="flex gap-2">
-                                <span className="text-lg text-primary">New purchase by User #3021.</span>
-                                <span className="badge badge-info">Purchase</span>
-                            </div>
-                            <span className="text-sm text-gray-500">3 hours ago</span>
-                        </li>
-                        <li className="flex items-center justify-between">
-                            <div className="flex gap-2">
-                                <span className="text-lg text-primary">System update completed.</span>
-                                <span className="badge badge-warning">Update</span>
-                            </div>
-                            <span className="text-sm text-gray-500">5 hours ago</span>
-                        </li>
-                    </ul>
-                </div>
+            {/* Users Chart */}
+            <div className="bg-white shadow-lg rounded-lg p-6">
+              <h4 className="text-lg font-semibold text-gray-700 mb-4">Active Users</h4>
+              <Bar data={barData} options={chartOptions} />
             </div>
-        </div>
-    );
+          </div>
+
+          {/* Activity Feed */}
+          <div className="bg-white shadow-lg rounded-lg p-6">
+            <h4 className="text-lg font-semibold text-gray-700 mb-4">Recent Activity</h4>
+            <ul className="space-y-4">
+              <li className="flex items-center justify-between text-gray-700">
+                <span>User John Doe signed up.</span>
+                <span className="text-sm text-gray-500">2 hours ago</span>
+              </li>
+              <li className="flex items-center justify-between text-gray-700">
+                <span>Revenue reached ₹5,00,000 milestone.</span>
+                <span className="text-sm text-gray-500">1 day ago</span>
+              </li>
+            </ul>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
 };
 
 export default Dashboard;

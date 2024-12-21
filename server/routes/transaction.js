@@ -10,17 +10,17 @@ router.post('/add', async (req, res) => {
     await newTransaction.save();
     res.status(201).json({ message: 'Transaction added successfully' });
   } catch (err) {
+    console.error(err);
     res.status(400).json({ error: 'Failed to add transaction' });
   }
 });
 
-// Get all transactions
-router.get('/', async (req, res) => {
+router.get('/transactions', async (req, res) => {
   try {
     const transactions = await Transaction.find();
-    res.status(200).json(transactions);
+    res.json(transactions);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch transactions' });
+    res.status(500).json({ message: 'Error fetching transactions' });
   }
 });
 

@@ -31,8 +31,9 @@ const Navbar = () => {
                         <li>
                             <NavLink
                                 to="/"
-                                className="hover:text-blue-500 active:text-blue-600"
-                                activeClassName="font-bold text-blue-400"
+                                className={({ isActive }) =>
+                                    isActive ? "font-bold text-blue-400" : "hover:text-blue-500 active:text-blue-600"
+                                }
                             >
                                 Home
                             </NavLink>
@@ -40,8 +41,9 @@ const Navbar = () => {
                         <li>
                             <NavLink
                                 to="/dashboard"
-                                className="hover:text-blue-500 active:text-blue-600"
-                                activeClassName="font-bold text-blue-400"
+                                className={({ isActive }) =>
+                                    isActive ? "font-bold text-blue-400" : "hover:text-blue-500 active:text-blue-600"
+                                }
                             >
                                 Dashboard
                             </NavLink>
@@ -49,8 +51,9 @@ const Navbar = () => {
                         <li>
                             <NavLink
                                 to="/analytics"
-                                className="hover:text-blue-500 active:text-blue-600"
-                                activeClassName="font-bold text-blue-400"
+                                className={({ isActive }) =>
+                                    isActive ? "font-bold text-blue-400" : "hover:text-blue-500 active:text-blue-600"
+                                }
                             >
                                 Analytics
                             </NavLink>
@@ -65,8 +68,9 @@ const Navbar = () => {
                     <li>
                         <NavLink
                             to="/"
-                            className="hover:text-blue-500 active:text-blue-600"
-                            activeClassName="font-bold text-blue-400"
+                            className={({ isActive }) =>
+                                isActive ? "font-bold text-blue-400" : "hover:text-blue-500 active:text-blue-600"
+                            }
                             onClick={() => setIsMenuOpen(false)} // Close menu on click
                         >
                             Home
@@ -75,8 +79,9 @@ const Navbar = () => {
                     <li>
                         <NavLink
                             to="/dashboard"
-                            className="hover:text-blue-500 active:text-blue-600"
-                            activeClassName="font-bold text-blue-400"
+                            className={({ isActive }) =>
+                                isActive ? "font-bold text-blue-400" : "hover:text-blue-500 active:text-blue-600"
+                            }
                             onClick={() => setIsMenuOpen(false)} // Close menu on click
                         >
                             Dashboard
@@ -85,8 +90,9 @@ const Navbar = () => {
                     <li>
                         <NavLink
                             to="/analytics"
-                            className="hover:text-blue-500 active:text-blue-600"
-                            activeClassName="font-bold text-blue-400"
+                            className={({ isActive }) =>
+                                isActive ? "font-bold text-blue-400" : "hover:text-blue-500 active:text-blue-600"
+                            }
                             onClick={() => setIsMenuOpen(false)} // Close menu on click
                         >
                             Analytics
@@ -95,8 +101,9 @@ const Navbar = () => {
                     <li>
                         <NavLink
                             to="/login"
-                            className="hover:text-blue-500 active:text-blue-600"
-                            activeClassName="font-bold text-blue-400"
+                            className={({ isActive }) =>
+                                isActive ? "font-bold text-blue-400" : "hover:text-blue-500 active:text-blue-600"
+                            }
                             onClick={() => setIsMenuOpen(false)} // Close menu on click
                         >
                             Login

@@ -1,152 +1,197 @@
-// src/pages/Analytics.jsx
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import api from '../services/axios';
+import { Bar, Line } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler,
+} from 'chart.js';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
 
 const Analytics = () => {
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [analyticsData, setAnalyticsData] = useState({
+    totalNetSales: 0,
+    transactionCount: 0,
+    avgNetSales: 0,
+    transactionVolume: [],
+    storeWiseSales: [],
+    recentTransactions: [],
+  });
+  const [loading, setLoading] = useState(true);
 
-    const toggleSidebar = () => {
-        setIsSidebarOpen(!isSidebarOpen);
-    };
+  const fetchAnalytics = async () => {
+    try {
+      const response = await api.get('/transactions/transactions');
+      console.log('Response data:', response.data);
 
-    return (
-        <div className="flex min-h-screen">
-            {/* Sidebar */}
-            <div className={`w-64 bg-base-200 p-4 fixed sm:static transition-transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} sm:translate-x-0 h-full`}>
-                <h2 className="text-2xl font-semibold text-center text-primary mb-6">Analytics</h2>
-                <ul className="menu p-2 space-y-4">
-                    <li>
-                        <Link to="/dashboard" className="menu-item text-primary hover:text-secondary">Dashboard</Link>
-                    </li>
-                    <li>
-                        <Link to="/analytics" className="menu-item text-primary hover:text-secondary">Analytics</Link>
-                    </li>
-                    <li>
-                        <Link to="/retailers" className="menu-item text-primary hover:text-secondary">Retailers</Link>
-                    </li>
-                    <li>
-                        <Link to="/settings" className="menu-item text-primary hover:text-secondary">Settings</Link>
-                    </li>
-                    <li>
-                        <Link to="/login" className="menu-item text-primary hover:text-secondary">Logout</Link>
-                    </li>
-                </ul>
-            </div>
+      const transactions = Array.isArray(response.data) ? response.data : [];
+      if (transactions.length === 0) {
+        console.warn('No transactions found.');
+        setLoading(false);
+        return;
+      }
 
-            {/* Main Content */}
-            <div className="flex-1 p-6 sm:ml-64">
-                {/* Mobile Navbar */}
-                <div className="sm:hidden flex justify-between items-center mb-6">
-                    <button className="btn btn-primary" onClick={toggleSidebar}>
-                        Menu
-                    </button>
-                    <h2 className="text-3xl font-semibold text-primary">Analytics</h2>
-                </div>
+      const totalNetSales = transactions.reduce(
+        (acc, trans) => acc + (trans.netSalesHeaderValues || 0),
+        0
+      );
+      const transactionCount = transactions.length;
+      const avgNetSales = transactionCount > 0 ? totalNetSales / transactionCount : 0;
 
-                {/* Header for larger screens */}
-                <div className="hidden sm:flex items-center justify-between mb-6">
-                    <h2 className="text-3xl font-semibold text-primary">Analytics Overview</h2>
-                    <div className="flex items-center gap-3">
-                        <button className="btn btn-primary">Export Data</button>
-                    </div>
-                </div>
+      const transactionVolume = transactions.reduce((acc, trans) => {
+        const month = new Date(trans.transDate).toLocaleString('default', { month: 'long' });
+        acc[month] = (acc[month] || 0) + (trans.netSalesHeaderValues || 0);
+        return acc;
+      }, {});
 
-                {/* Analytics Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {/* Sales Performance Card */}
-                    <div className="card bg-primary text-white shadow-xl">
-                        <div className="card-body">
-                            <h3 className="text-xl font-semibold">Sales Performance</h3>
-                            <p className="text-3xl font-bold">$120,000</p>
-                            <p className="text-sm mt-2">Month-to-Date</p>
-                        </div>
-                    </div>
+      const storeWiseSales = transactions.reduce((acc, trans) => {
+        acc[trans.storeDisplayName] = (acc[trans.storeDisplayName] || 0) + (trans.netSalesHeaderValues || 0);
+        return acc;
+      }, {});
 
-                    {/* Conversion Rate Card */}
-                    <div className="card bg-accent text-white shadow-xl">
-                        <div className="card-body">
-                            <h3 className="text-xl font-semibold">Conversion Rate</h3>
-                            <p className="text-3xl font-bold">8.5%</p>
-                            <p className="text-sm mt-2">Increase from last week</p>
-                        </div>
-                    </div>
+      const recentTransactions = transactions.slice(0, 10);
 
-                    {/* Active Users Card */}
-                    <div className="card bg-secondary text-white shadow-xl">
-                        <div className="card-body">
-                            <h3 className="text-xl font-semibold">Active Users</h3>
-                            <p className="text-3xl font-bold">4,500</p>
-                            <p className="text-sm mt-2">Currently Active</p>
-                        </div>
-                    </div>
-                </div>
+      setAnalyticsData({
+        totalNetSales,
+        transactionCount,
+        avgNetSales,
+        transactionVolume: Object.entries(transactionVolume).map(([month, value]) => ({ month, value })),
+        storeWiseSales: Object.entries(storeWiseSales).map(([store, value]) => ({ store, value })),
+        recentTransactions,
+      });
 
-                {/* Analytics Charts Section */}
-                <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {/* Chart Card 1 */}
-                    <div className="card shadow-xl bg-base-100">
-                        <div className="card-body">
-                            <h3 className="text-xl font-semibold text-primary">Monthly Sales Trend</h3>
-                            <div className="h-72 bg-gray-200 rounded-md">
-                                {/* Placeholder for Chart (You can use Chart.js or Recharts here) */}
-                                <p className="text-center mt-24 text-gray-600">Chart Placeholder</p>
-                            </div>
-                        </div>
-                    </div>
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+      setLoading(false);
+    }
+  };
 
-                    {/* Chart Card 2 */}
-                    <div className="card shadow-xl bg-base-100">
-                        <div className="card-body">
-                            <h3 className="text-xl font-semibold text-primary">Customer Acquisition</h3>
-                            <div className="h-72 bg-gray-200 rounded-md">
-                                {/* Placeholder for Chart (You can use Chart.js or Recharts here) */}
-                                <p className="text-center mt-24 text-gray-600">Chart Placeholder</p>
-                            </div>
-                        </div>
-                    </div>
+  useEffect(() => {
+    fetchAnalytics();
+  }, []);
 
-                    {/* Chart Card 3 */}
-                    <div className="card shadow-xl bg-base-100">
-                        <div className="card-body">
-                            <h3 className="text-xl font-semibold text-primary">Retailer Performance</h3>
-                            <div className="h-72 bg-gray-200 rounded-md">
-                                {/* Placeholder for Chart (You can use Chart.js or Recharts here) */}
-                                <p className="text-center mt-24 text-gray-600">Chart Placeholder</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+  if (loading) {
+    return <div className="text-center py-10">Loading...</div>;
+  }
 
-                {/* Insights Section */}
-                <div className="mt-12">
-                    <h3 className="text-2xl font-semibold text-primary mb-4">Key Insights</h3>
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                            <div className="flex gap-2">
-                                <span className="text-lg text-primary">Sales increased by 15% compared to last quarter.</span>
-                                <span className="badge badge-success">Positive Trend</span>
-                            </div>
-                            <span className="text-sm text-gray-500">Last Updated: 1 day ago</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                            <div className="flex gap-2">
-                                <span className="text-lg text-primary">Customer acquisition is up by 25% in the last month.</span>
-                                <span className="badge badge-info">Growing</span>
-                            </div>
-                            <span className="text-sm text-gray-500">Last Updated: 2 hours ago</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                            <div className="flex gap-2">
-                                <span className="text-lg text-primary">Top 3 performing retailers have increased sales by 10%.</span>
-                                <span className="badge badge-warning">In Progress</span>
-                            </div>
-                            <span className="text-sm text-gray-500">Last Updated: 4 hours ago</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  return (
+    <div className="p-8 space-y-6 bg-gray-50">
+      <h1 className="text-3xl font-semibold text-gray-800">Analytics Dashboard</h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-white p-6 rounded-lg shadow-lg">
+          <h3 className="text-lg font-medium text-gray-700">Total Net Sales</h3>
+          <p className="text-2xl text-green-600">₹{analyticsData.totalNetSales.toLocaleString()}</p>
         </div>
-    );
+        <div className="bg-white p-6 rounded-lg shadow-lg">
+          <h3 className="text-lg font-medium text-gray-700">Transaction Count</h3>
+          <p className="text-2xl text-blue-600">{analyticsData.transactionCount}</p>
+        </div>
+        <div className="bg-white p-6 rounded-lg shadow-lg">
+          <h3 className="text-lg font-medium text-gray-700">Average Net Sales</h3>
+          <p className="text-2xl text-yellow-600">₹{analyticsData.avgNetSales.toFixed(2)}</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white p-6 rounded-lg shadow-lg">
+          <h3 className="text-lg font-medium text-gray-700 mb-4">Monthly Transaction Volume</h3>
+          <Bar
+            data={{
+              labels: analyticsData.transactionVolume.map((item) => item.month),
+              datasets: [
+                {
+                  label: 'Net Sales',
+                  data: analyticsData.transactionVolume.map((item) => item.value),
+                  backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                  borderColor: 'rgba(75, 192, 192, 1)',
+                  borderWidth: 1,
+                },
+              ],
+            }}
+            options={{
+              responsive: true,
+              plugins: {
+                legend: { position: 'top' },
+                title: { display: true, text: 'Transaction Volume by Month' },
+              },
+            }}
+          />
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow-lg">
+          <h3 className="text-lg font-medium text-gray-700 mb-4">Store-wise Sales</h3>
+          <Line
+            data={{
+              labels: analyticsData.storeWiseSales.map((item) => item.store),
+              datasets: [
+                {
+                  label: 'Net Sales',
+                  data: analyticsData.storeWiseSales.map((item) => item.value),
+                  backgroundColor: 'rgba(153, 102, 255, 0.6)',
+                  borderColor: 'rgba(153, 102, 255, 1)',
+                  borderWidth: 2,
+                  fill: true,
+                },
+              ],
+            }}
+            options={{
+              responsive: true,
+              plugins: {
+                legend: { position: 'top' },
+                title: { display: true, text: 'Sales by Store' },
+              },
+            }}
+          />
+        </div>
+      </div>
+
+      <div className="bg-white p-6 rounded-lg shadow-lg">
+        <h3 className="text-lg font-medium text-gray-700 mb-4">Recent Transactions</h3>
+        <table className="min-w-full table-auto border-collapse border border-gray-300">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="px-4 py-2 text-sm font-semibold text-gray-700 border-b">Transaction No</th>
+              <th className="px-4 py-2 text-sm font-semibold text-gray-700 border-b">Store</th>
+              <th className="px-4 py-2 text-sm font-semibold text-gray-700 border-b">Date</th>
+              <th className="px-4 py-2 text-sm font-semibold text-gray-700 border-b">Net Sales</th>
+            </tr>
+          </thead>
+          <tbody>
+            {analyticsData.recentTransactions.map((trans) => (
+              <tr key={trans._id} className="hover:bg-gray-50">
+                <td className="px-4 py-2 text-sm text-gray-700 border-b">{trans.transNo}</td>
+                <td className="px-4 py-2 text-sm text-gray-700 border-b">{trans.storeDisplayName}</td>
+                <td className="px-4 py-2 text-sm text-gray-700 border-b">
+                  {new Date(trans.transDate).toLocaleDateString()}
+                </td>
+                <td className="px-4 py-2 text-sm text-gray-700 border-b">₹{trans.netSalesHeaderValues}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 };
 
 export default Analytics;

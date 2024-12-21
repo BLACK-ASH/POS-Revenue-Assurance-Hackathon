@@ -3,7 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
-
+const cors = require('cors');
 
 // Load environment variables from .env file
 dotenv.config();
@@ -13,6 +13,7 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware to parse JSON data
 app.use(express.json());
+app.use(cors());
 
 // Connect to MongoDB
 connectDB()
@@ -24,7 +25,7 @@ app.get('/', (req, res) => {
 
 // Import routes
 const transactionRoutes = require('./routes/transaction');
-const authRoutes = require('./routes/auth');
+const authRoutes = require('./routes/authRoutes');
 const salesRoutes = require('./routes/salesReport');
 
 // Use routes
