@@ -11,7 +11,7 @@ const Navbar = () => {
     };
 
     return (
-        <nav className="bg-base-200 p-4">
+        <nav className="bg-base-100 p-4">
             <div className="max-w-screen-xl mx-auto flex items-center justify-between">
                 <div className="text-2xl font-semibold">
                     <span className="text-secondary">Revenue</span>
@@ -55,18 +55,7 @@ const Navbar = () => {
                                 Analytics
                             </NavLink>
                         </li>
-                        <li>
-                            <NavLink
-                                to="/login"
-                                className="hover:text-blue-500 active:text-blue-600"
-                                activeClassName="font-bold text-blue-400"
-                            >
-                                Login
-                            </NavLink>
-                        </li>
                     </ul>
-
-                    <button className="btn btn-neutral">Sign Up</button>
                 </div>
             </div>
 
